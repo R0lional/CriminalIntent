@@ -6,18 +6,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.UUID;
 
-/**
- * Created by lional on 17-5-18.
- */
-
 public class CrimePagerActivity extends AppCompatActivity {
     private ViewPager mViewPager;
     private ArrayList<Crime> mCrimes;
+    private ActionBar mActionBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -32,7 +30,7 @@ public class CrimePagerActivity extends AppCompatActivity {
         mViewPager.setAdapter(new FragmentStatePagerAdapter(fm) {
             @Override
             public Fragment getItem(int position) {
-                return CrimeFragment.newInstance(mCrimes.get(position).getmId());
+                return CrimeFragment.newInstance(mCrimes.get(position).getmId(), getSupportActionBar());
             }
 
             @Override

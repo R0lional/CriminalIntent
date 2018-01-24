@@ -1,6 +1,5 @@
 package com.example.lional.criminalintent;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -15,10 +14,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-/**
- * Created by lional on 17-5-19.
- */
-
 public class DatePickerFragment extends DialogFragment {
     public static final String EXTRA_DATE = "criminalinate.date";
     private Date mDate;
@@ -29,15 +24,17 @@ public class DatePickerFragment extends DialogFragment {
         mDate = (Date) getArguments().getSerializable(EXTRA_DATE);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(mDate);
-        @SuppressLint("WrongConstant") int year = calendar.get(Calendar.YEAR);
-        @SuppressLint("WrongConstant") int month = calendar.get(Calendar.MONTH);
-        @SuppressLint("WrongConstant") int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        final int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        final int min = calendar.get(Calendar.MINUTE);
 
         DatePicker datePicker = (DatePicker) v.findViewById(R.id.dialog_date_datePicker);
         datePicker.init(year, month, day, new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                mDate = new GregorianCalendar(year, monthOfYear, dayOfMonth).getTime();
+                mDate = new GregorianCalendar(year, monthOfYear, dayOfMonth, hour, min).getTime();
                 getArguments().putSerializable(EXTRA_DATE, mDate);
             }
         });
@@ -48,17 +45,25 @@ public class DatePickerFragment extends DialogFragment {
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        sendResult(Activity.RESULT_OK);
+                        sendResult(Activity.RESULT_OK, mDate);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        sendResult(Activity.RESULT_CANCELED, mDate);
                     }
                 })
                 .create();
     }
 
-    private void sendResult(int resultCode) {
+    protected void sendResult(int resultCode, Date date) {
         if(getTargetFragment() == null) return;
 
         Intent intent = new Intent();
-        intent.putExtra(EXTRA_DATE, mDate);
+        if (date != null) {
+            intent.putExtra(EXTRA_DATE, date);
+        }
 
         getTargetFragment().onActivityResult(getTargetRequestCode(), resultCode, intent);
     }

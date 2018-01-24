@@ -1,28 +1,39 @@
 package com.example.lional.criminalintent;
 
 import android.content.Context;
+import android.util.Log;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
-
-/**
- * Created by lional on 17-5-11.
- */
-
 public class CrimeLab {
+    private static final String TAG = "CrimeLab";
+    private static final String FILENAME = "crimes.json";
+
     private static CrimeLab sCrimeLab;
     private Context mAppContext;
     private ArrayList<Crime> mCrimes;
+    private CriminalIntentJSONSerializer mSerializer;
 
     private CrimeLab (Context appContext) {
         mAppContext = appContext;
-        mCrimes = new ArrayList<Crime>();
-        for (int i = 0; i < 100; i++) {
-            Crime c = new Crime();
-            c.setmTitle("Crime #" + i);
-            c.setmSolved(i % 2 == 0);
-            mCrimes.add(c);
+        mSerializer = new CriminalIntentJSONSerializer(mAppContext, FILENAME);
+
+        try {
+            mCrimes = mSerializer.loadCrimes();
+        } catch (JSONException e) {
+            Log.d(TAG, "JSONException: " + e);
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.d(TAG, "IOException: " + e);
+            e.printStackTrace();
+        } finally {
+            if (mCrimes == null) {
+                mCrimes = new ArrayList<Crime>();
+            }
         }
     }
 
@@ -45,5 +56,26 @@ public class CrimeLab {
             }
         }
         return null;
+    }
+
+    public void addCrime(Crime crime) {
+        mCrimes.add(crime);
+    }
+
+    public void deleteCrime(Crime crime) {
+        mCrimes.remove(crime);
+    }
+
+    public void saveCrimes() {
+        try {
+            mSerializer.saveCrimes(mCrimes);
+            Log.d(TAG, "mCrimes saved to file: " + FILENAME);
+        } catch (JSONException e) {
+            Log.d(TAG, "JSONException: " + e);
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.d(TAG, "IOException: " + e);
+            e.printStackTrace();
+        }
     }
 }
